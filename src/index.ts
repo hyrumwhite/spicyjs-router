@@ -31,19 +31,18 @@ const mountRouteElement = (
 	element: HTMLElement
 ) => {
 	if (typeof target === "string") {
-		target = document.querySelector(target);
+		target = document.querySelector(target) as HTMLElement;
 	} else if (typeof target === "function") {
 		target = target();
 	}
 	(target as HTMLElement).replaceChildren(element);
 };
-let path = "";
 const getRouteFromPath = async (initialPath: string, routes: Routes) => {
 	const [path, queryString = ""] = initialPath.split("?");
 	const query = Object.fromEntries(new URLSearchParams(queryString));
 	const [, ...pathParts] = path.split("/");
 	for (const route of routes) {
-		let routeKey = route.path;
+		let routeKey = route.path as string;
 		if (routeKey.startsWith("/")) {
 			routeKey = routeKey.slice(1);
 		}
@@ -94,8 +93,8 @@ const handleURLChange = async () => {
 const asyncNoop = async () => {};
 type Guard = () => Promise<void>;
 let routes: Routes = [];
-let beforeEachFn: GuardFn = asyncNoop;
-let afterEachFn: GuardFn = asyncNoop;
+let beforeEachFn: () => Promise<void | boolean> | void | boolean = asyncNoop;
+let afterEachFn: () => Promise<void | boolean> | void | boolean = asyncNoop;
 export const beforeEach = (fn: Guard | null) =>
 	(beforeEachFn = fn || asyncNoop);
 export const afterEach = (fn: Guard | null) => (afterEachFn = fn || asyncNoop);
@@ -106,32 +105,35 @@ export const createRouter = async (newRoutes: Routes) => {
 	return handleURLChange();
 };
 
-const insertParamsIntoPath = (path: string, params = {}) =>
-	path.replace(/:([^/]+)/g, (match, key: string) => params[key]);
+const insertParamsIntoPath = (
+	path: string,
+	params: Record<string, string | number | boolean> = {}
+) => path.replace(/:([^/]+)/g, (_, key: string) => params[key].toString());
 const getRoutePathFromName = (
 	routes: Routes,
 	routeName: string,
 	finalPath = ""
-) => {
+): string => {
 	for (const { name, path, children } of routes) {
 		if (name === routeName) {
 			return finalPath + path;
 		}
 		if (children) {
-			const childRoute = getRoutePathFromName(
+			const childPath = getRoutePathFromName(
 				children,
 				routeName,
 				finalPath + path
 			);
-			if (childRoute) {
-				return childRoute;
+			if (childPath) {
+				return childPath;
 			}
 		}
 	}
 	throw new Error(`No route found with name ${name}`);
 };
 
-type RouteParams = {
+export type RouteParams = {
+	name?: string;
 	path?: string;
 	url?: string;
 	params?: Record<string, string>;
@@ -142,7 +144,7 @@ type RouteParams = {
 
 export const go = ({
 	path = "",
-	name,
+	name = "",
 	params,
 	query = {},
 	delta,
@@ -153,6 +155,7 @@ export const go = ({
 	}
 	path ||= getRoutePathFromName(routes, name);
 	path = insertParamsIntoPath(path, params);
+	//@ts-ignore
 	const queryString = new URLSearchParams(query).toString();
 	path += queryString ? `?${queryString}` : "";
 	if (replace) {

@@ -1,5 +1,5 @@
 import "./style.css";
-import { createRouter, go } from ".";
+import { createRouter, go } from "../src";
 
 const RouteAnchor = (routeParam: Parameters<typeof go>[0], text: string) => {
 	const a = document.createElement("a");
