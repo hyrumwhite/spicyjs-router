@@ -9,7 +9,7 @@ export type GuardFn = (
 
 export type Route = {
 	name: string;
-	path: `/${string}`;
+	path: `/${string}` | "*";
 	target?: string | (() => HTMLElement) | HTMLElement;
 	handler: ({
 		params,
@@ -39,11 +39,10 @@ const mountRouteElement = (
 };
 let path = "";
 const getRouteFromPath = async (initialPath: string, routes: Routes) => {
-	const catchallRoute = routes.find((route) => route.path === "*");
 	const [path, queryString = ""] = initialPath.split("?");
 	const query = Object.fromEntries(new URLSearchParams(queryString));
 	const [, ...pathParts] = path.split("/");
-	for (let route of routes) {
+	for (const route of routes) {
 		let routeKey = route.path;
 		if (routeKey.startsWith("/")) {
 			routeKey = routeKey.slice(1);
@@ -55,13 +54,12 @@ const getRouteFromPath = async (initialPath: string, routes: Routes) => {
 			const routePart = routeParts[i];
 			const pathPart = pathParts[i];
 			if (routePart.startsWith(":")) {
-				params[routePart.slice(":")] = pathPart;
+				params[routePart.slice(1)] = pathPart;
 			}
-			let noMatch = pathPart !== routePart;
-			if (noMatch && isLastIteration && catchallRoute) {
-				noMatch = false;
-				route = catchallRoute;
-			}
+			let noMatch =
+				pathPart !== routePart &&
+				route.path !== "*" &&
+				!routePart.startsWith(":");
 			if (noMatch) {
 				break;
 			} else if (isLastIteration) {
@@ -77,6 +75,7 @@ const getRouteFromPath = async (initialPath: string, routes: Routes) => {
 				if (route.children && remainingPathParts.length) {
 					await getRouteFromPath(remainingPathParts.join("/"), route.children);
 				}
+				return;
 			}
 		}
 	}

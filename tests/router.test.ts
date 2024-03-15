@@ -108,6 +108,49 @@ test("designate a route with name", async () => {
 	expect(aboutComponent).toEqual(renderedComponent);
 });
 
+test("parameters and queries can be passed", async () => {
+	const defaultComponent = componentFactory(component1)();
+	const aboutComponent = componentFactory(component2)();
+	const settingsComponent = componentFactory(component3)();
+	const aboutHandler = vi.fn(() => aboutComponent);
+	await router.createRouter([
+		{
+			name: "default",
+			path: "/",
+			handler: () => defaultComponent,
+		},
+		{
+			name: "about",
+			path: "/about/:id",
+			handler: aboutHandler,
+		},
+		{
+			name: "settings",
+			path: "/settings/:setting/item/:item",
+			handler: () => settingsComponent,
+		},
+	]);
+	await router.go({
+		name: "about",
+		params: { id: 77 },
+		query: { search: "test", limit: 12 },
+	});
+	let route = router.getCurrentRoute();
+	expect(aboutHandler).toBeCalledWith({
+		params: { id: "77" },
+		query: { search: "test", limit: "12" },
+	});
+	expect(window.location.pathname).toEqual("/about/77?search=test&limit=12");
+	expect(router.getCurrentRoute().name).toEqual("about");
+	await router.go({
+		name: "settings",
+		params: { setting: 77, item: "bob" },
+	});
+	route = router.getCurrentRoute();
+	expect(window.location.pathname).toEqual("/settings/77/item/bob");
+	expect(router.getCurrentRoute().name).toEqual("settings");
+});
+
 test("designate a route with path", async () => {
 	const defaultComponent = componentFactory(component1)();
 	const aboutComponent = componentFactory(component2)();
@@ -225,7 +268,7 @@ test("renders nested routes", async () => {
 	await router.go({ name: "comp2" });
 	expect(el2.isConnected).toEqual(true);
 	expect(subrouteOutlet).toEqual(el2.parentElement);
-	// await router.go({ path: "/about/5" });
-	// expect(el4.isConnected).toEqual(true);
-	// expect(subrouteOutlet).toEqual(el4.parentElement);
+	await router.go({ path: "/about/5" });
+	expect(el4.isConnected).toEqual(true);
+	expect(subrouteOutlet).toEqual(el4.parentElement);
 });
