@@ -1,3 +1,4 @@
+import { clearHistory } from "./window-mock";
 import { expect, test, vi, beforeAll, beforeEach } from "vitest";
 import * as router from "../src/index";
 
@@ -18,38 +19,11 @@ const componentFactory = (className: string) => {
 const asyncTimeout = (duration: number) =>
 	new Promise((resolve) => setTimeout(resolve, duration));
 
-let handleURLChange = () => {};
-let historyEntries: [[string, string, string]] = [];
-const updateHistory = (thing: null, title: string, path: string) => {
-	historyEntries.push([thing, title, path]);
-	globalThis.window.location.pathname = path;
-};
-const replaceHistory = (thing: null, title: string, path: string) => {
-	historyEntries.pop();
-	historyEntries.push([thing, title, path]);
-	globalThis.window.location.pathname = path;
-};
 beforeAll(() => {
-	historyEntries = [];
+	clearHistory();
 	const mountPoint = document.createElement("div");
 	mountPoint.className = "router-outlet";
 	document.body.appendChild(mountPoint);
-	globalThis.window = {
-		location: {
-			pathname: "/",
-		},
-		addEventListener: (key: string, fn: () => void) => (handleURLChange = fn),
-		removeEventListener: vi.fn(),
-		history: {
-			go: vi.fn((delta: number) => {
-				const entry = historyEntries[historyEntries.length + delta];
-				globalThis.window.location.pathname = entry[2];
-				handleURLChange();
-			}),
-			pushState: vi.fn(updateHistory),
-			replaceState: vi.fn(replaceHistory),
-		},
-	};
 });
 beforeEach(() => {
 	const outlet = defaultOutlet();

@@ -1,8 +1,9 @@
+const d = window.history;
 let a;
-const W = () => a, C = ".router-outlet", F = ({ target: t = C }, n) => {
+const j = () => a, F = ".router-outlet", v = ({ target: t = F }, n) => {
   typeof t == "string" ? t = document.querySelector(t) : typeof t == "function" && (t = t()), t.replaceChildren(n);
-}, E = async (t, n) => {
-  var r, y;
+}, S = async (t, n) => {
+  var r, P;
   const [s, i = ""] = t.split("?"), o = Object.fromEntries(new URLSearchParams(i)), [, ...c] = s.split("/");
   for (const e of n) {
     let f = e.path;
@@ -10,32 +11,32 @@ const W = () => a, C = ".router-outlet", F = ({ target: t = C }, n) => {
     const p = f.split("/");
     let h = {};
     for (let l = 0; l < p.length; l++) {
-      const b = l === p.length - 1, u = p[l], P = c[l];
-      if (u.startsWith(":") && (h[u.slice(1)] = P), P !== u && e.path !== "*" && !u.startsWith(":"))
+      const q = l === p.length - 1, u = p[l], g = c[l];
+      if (u.startsWith(":") && (h[u.slice(1)] = g), g !== u && e.path !== "*" && !u.startsWith(":"))
         break;
-      if (b) {
+      if (q) {
         if (await ((r = e.before) == null ? void 0 : r.call(e, { params: h, query: o })) === !1)
           return;
-        const q = await e.handler({ params: h, query: o });
-        F(e, q), a = e, await ((y = e.after) == null ? void 0 : y.call(e, { params: h, query: o })), h = {};
-        const g = c.slice(l);
-        e.children && g.length && await E(g.join("/"), e.children);
+        const C = await e.handler({ params: h, query: o });
+        v(e, C), a = e, await ((P = e.after) == null ? void 0 : P.call(e, { params: h, query: o })), h = {};
+        const E = c.slice(l);
+        e.children && E.length && await S(E.join("/"), e.children);
         return;
       }
     }
   }
 }, w = async () => {
   var t;
-  (t = a == null ? void 0 : a.onRouteChange) == null || t.call(a, a), await S() !== !1 && (await E(window.location.pathname, d), await L());
+  (t = a == null ? void 0 : a.onRouteChange) == null || t.call(a, a), await L() !== !1 && (await S(window.location.pathname, y), await R());
 }, m = async () => {
 };
-let d = [], S = m, L = m;
-const j = (t) => S = t || m, I = (t) => L = t || m, M = async (t) => (d = t, window.removeEventListener("popstate", w), window.addEventListener("popstate", w), w()), v = (t, n = {}) => t.replace(/:([^/]+)/g, (s, i) => n[i].toString()), R = (t, n, s = "") => {
+let y = [], L = m, R = m;
+const I = (t) => L = t || m, M = (t) => R = t || m, N = async (t) => (y = t, window.removeEventListener("popstate", w), window.addEventListener("popstate", w), w()), U = (t, n = {}) => t.replace(/:([^/]+)/g, (s, i) => n[i].toString()), b = (t, n, s = "") => {
   for (const { name: i, path: o, children: c } of t) {
     if (i === n)
       return s + o;
     if (c) {
-      const r = R(
+      const r = b(
         c,
         n,
         s + o
@@ -45,7 +46,7 @@ const j = (t) => S = t || m, I = (t) => L = t || m, M = async (t) => (d = t, win
     }
   }
   throw new Error(`No route found with name ${name}`);
-}, N = ({
+}, O = ({
   path: t = "",
   name: n = "",
   params: s,
@@ -54,15 +55,15 @@ const j = (t) => S = t || m, I = (t) => L = t || m, M = async (t) => (d = t, win
   replace: c
 }) => {
   if (o)
-    return window.history.go(o);
-  t || (t = R(d, n)), t = v(t, s);
+    return d.go(o);
+  t || (t = b(y, n)), t = U(t, s);
   const r = new URLSearchParams(i).toString();
-  return t += r ? `?${r}` : "", c ? window.history.replaceState(null, "", t) : window.history.pushState(null, "", t), w();
+  return t += r ? `?${r}` : "", c ? d.replaceState(null, "", t) : d.pushState(null, "", t), w();
 };
 export {
-  I as afterEach,
-  j as beforeEach,
-  M as createRouter,
-  W as getCurrentRoute,
-  N as go
+  M as afterEach,
+  I as beforeEach,
+  N as createRouter,
+  j as getCurrentRoute,
+  O as go
 };

@@ -22,7 +22,7 @@ export type Route = {
 };
 
 type Routes = Route[];
-
+const history = window.history;
 let currentRoute: Route | null;
 export const getCurrentRoute = () => currentRoute;
 const defaultOutlet = ".router-outlet";
@@ -129,7 +129,7 @@ const getRoutePathFromName = (
 			}
 		}
 	}
-	throw new Error(`No route found with name ${name}`);
+	throw new Error(`Route: ${name} not found`);
 };
 
 export type RouteParams = {
@@ -151,17 +151,17 @@ export const go = ({
 	replace,
 }: RouteParams) => {
 	if (delta) {
-		return window.history.go(delta);
+		return history.go(delta);
 	}
 	path ||= getRoutePathFromName(routes, name);
 	path = insertParamsIntoPath(path, params);
 	//@ts-ignore
-	const queryString = new URLSearchParams(query).toString();
-	path += queryString ? `?${queryString}` : "";
+	const queryString = `${new URLSearchParams(query)}`;
+	queryString && (path += `?${queryString}`);
 	if (replace) {
-		window.history.replaceState(null, "", path);
+		history.replaceState(null, "", path);
 	} else {
-		window.history.pushState(null, "", path);
+		history.pushState(null, "", path);
 	}
 	return handleURLChange();
 };
