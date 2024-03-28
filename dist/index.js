@@ -1,6 +1,6 @@
 const d = window.history;
 let a;
-const j = () => a, F = ".router-outlet", v = ({ target: t = F }, n) => {
+const $ = () => a, F = ".router-outlet", v = ({ target: t = F }, n) => {
   typeof t == "string" ? t = document.querySelector(t) : typeof t == "function" && (t = t()), t.replaceChildren(n);
 }, S = async (t, n) => {
   var r, P;
@@ -27,11 +27,11 @@ const j = () => a, F = ".router-outlet", v = ({ target: t = F }, n) => {
   }
 }, w = async () => {
   var t;
-  (t = a == null ? void 0 : a.onRouteChange) == null || t.call(a, a), await L() !== !1 && (await S(window.location.pathname, y), await R());
+  (t = a == null ? void 0 : a.onRouteChange) == null || t.call(a, a), await R() !== !1 && (await S(window.location.pathname, y), await L());
 }, m = async () => {
 };
-let y = [], L = m, R = m;
-const I = (t) => L = t || m, M = (t) => R = t || m, N = async (t) => (y = t, window.removeEventListener("popstate", w), window.addEventListener("popstate", w), w()), U = (t, n = {}) => t.replace(/:([^/]+)/g, (s, i) => n[i].toString()), b = (t, n, s = "") => {
+let y = [], R = m, L = m;
+const j = (t) => R = t || m, I = (t) => L = t || m, M = async (t) => (y = t, window.removeEventListener("popstate", w), window.addEventListener("popstate", w), w()), U = (t, n = {}) => t.replace(/:([^/]+)/g, (s, i) => n[i].toString()), b = (t, n, s = "") => {
   for (const { name: i, path: o, children: c } of t) {
     if (i === n)
       return s + o;
@@ -45,7 +45,7 @@ const I = (t) => L = t || m, M = (t) => R = t || m, N = async (t) => (y = t, win
         return r;
     }
   }
-  throw new Error(`No route found with name ${name}`);
+  throw new Error(`Route: ${name} not found`);
 }, O = ({
   path: t = "",
   name: n = "",
@@ -57,13 +57,13 @@ const I = (t) => L = t || m, M = (t) => R = t || m, N = async (t) => (y = t, win
   if (o)
     return d.go(o);
   t || (t = b(y, n)), t = U(t, s);
-  const r = new URLSearchParams(i).toString();
-  return t += r ? `?${r}` : "", c ? d.replaceState(null, "", t) : d.pushState(null, "", t), w();
+  const r = `${new URLSearchParams(i)}`;
+  return r && (t += `?${r}`), c ? d.replaceState(null, "", t) : d.pushState(null, "", t), w();
 };
 export {
-  M as afterEach,
-  I as beforeEach,
-  N as createRouter,
-  j as getCurrentRoute,
+  I as afterEach,
+  j as beforeEach,
+  M as createRouter,
+  $ as getCurrentRoute,
   O as go
 };

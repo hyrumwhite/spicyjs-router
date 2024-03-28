@@ -95,9 +95,10 @@ type Guard = () => Promise<void>;
 let routes: Routes = [];
 let beforeEachFn: () => Promise<void | boolean> | void | boolean = asyncNoop;
 let afterEachFn: () => Promise<void | boolean> | void | boolean = asyncNoop;
-export const beforeEach = (fn: Guard | null) =>
+export const beforeEach = (fn: typeof beforeEachFn | null) =>
 	(beforeEachFn = fn || asyncNoop);
-export const afterEach = (fn: Guard | null) => (afterEachFn = fn || asyncNoop);
+export const afterEach = (fn: typeof beforeEachFn | null) =>
+	(afterEachFn = fn || asyncNoop);
 export const createRouter = async (newRoutes: Routes) => {
 	routes = newRoutes;
 	window.removeEventListener("popstate", handleURLChange);

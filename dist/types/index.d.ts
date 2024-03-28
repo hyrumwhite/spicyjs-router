@@ -15,9 +15,9 @@ export type Route = {
 };
 type Routes = Route[];
 export declare const getCurrentRoute: () => Route | null;
-type Guard = () => Promise<void>;
-export declare const beforeEach: (fn: Guard | null) => () => Promise<void>;
-export declare const afterEach: (fn: Guard | null) => () => Promise<void>;
+declare let beforeEachFn: () => Promise<void | boolean> | void | boolean;
+export declare const beforeEach: (fn: typeof beforeEachFn | null) => () => Promise<void | boolean> | void | boolean;
+export declare const afterEach: (fn: typeof beforeEachFn | null) => () => Promise<void | boolean> | void | boolean;
 export declare const createRouter: (newRoutes: Routes) => Promise<void>;
 export type RouteParams = {
     name?: string;
